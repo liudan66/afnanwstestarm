@@ -15,8 +15,8 @@
             "name": "[parameters('workspaces_afnancicdws_name')]",
             "location": "eastus2euap",
             "identity": {
-                "principalId": "ceedf7f6-0367-4735-9ca0-d48265795222",
-                "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                "principalId": "",
+                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
