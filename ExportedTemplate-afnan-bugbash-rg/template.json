@@ -1,0 +1,94 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaces_afnancicdws_name": {
+            "defaultValue": "afnancicdws",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Synapse/workspaces",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[parameters('workspaces_afnancicdws_name')]",
+            "location": "eastus2euap",
+            "identity": {
+                "principalId": "ceedf7f6-0367-4735-9ca0-d48265795222",
+                "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "connectivityEndpoints": {
+                    "web": "[concat('https://web.azuresynapse.net?workspace=%2fsubscriptions%2f00baffc3-c40a-4478-a424-4bdc9566c82a%2fresourceGroups%2fafnan-bugbash-rg%2fproviders%2fMicrosoft.Synapse%2fworkspaces%2f', parameters('workspaces_afnancicdws_name'))]",
+                    "dev": "[concat('https://', parameters('workspaces_afnancicdws_name'), '.dev.azuresynapse.net')]",
+                    "sqlOnDemand": "[concat(parameters('workspaces_afnancicdws_name'), '-ondemand.sql.azuresynapse.net')]",
+                    "sql": "[concat(parameters('workspaces_afnancicdws_name'), '.sql.azuresynapse.net')]"
+                },
+                "managedResourceGroupName": "synapseworkspace-managedrg-682971a0-ded5-41e6-b0af-78c6c89354c0",
+                "defaultDataLakeStorage": {
+                    "accountUrl": "https://afnanadlg2ig2.dfs.core.windows.net",
+                    "filesystem": "data"
+                },
+                "sqlAdministratorLogin": "sqladminuser",
+                "privateEndpointConnections": []
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces/bigDataPools",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(parameters('workspaces_afnancicdws_name'), '/SampleSpark')]",
+            "location": "eastus2euap",
+            "dependsOn": [
+                "[resourceId('Microsoft.Synapse/workspaces', parameters('workspaces_afnancicdws_name'))]"
+            ],
+            "properties": {
+                "creationDate": "2020-11-17T01:08:04.8166667Z",
+                "sparkVersion": "2.4",
+                "nodeCount": 3,
+                "nodeSize": "Medium",
+                "nodeSizeFamily": "MemoryOptimized",
+                "autoScale": {
+                    "enabled": false,
+                    "minNodeCount": 3,
+                    "maxNodeCount": 10
+                },
+                "autoPause": {
+                    "enabled": true,
+                    "delayInMinutes": 15
+                },
+                "isComputeIsolationEnabled": false,
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces/firewallRules",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(parameters('workspaces_afnancicdws_name'), '/allowAll')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Synapse/workspaces', parameters('workspaces_afnancicdws_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "255.255.255.255"
+            }
+        },
+        {
+            "type": "Microsoft.Synapse/workspaces/integrationruntimes",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[concat(parameters('workspaces_afnancicdws_name'), '/AutoResolveIntegrationRuntime')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Synapse/workspaces', parameters('workspaces_afnancicdws_name'))]"
+            ],
+            "properties": {
+                "type": "Managed",
+                "typeProperties": {
+                    "computeProperties": {
+                        "location": "AutoResolve"
+                    }
+                }
+            }
+        }
+    ]
+}
